@@ -4,9 +4,10 @@ import {base_url, characters, defaultHero, period_month} from "../utils/constant
 import {Planet} from "../utils/types";
 import {useParams} from "react-router";
 import {SWContext} from "../utils/context.ts";
+import ErrorPage from "./ErrorPage.tsx";
 
 const Contact = () => {
-    const [planets, setPlanets] = useState(['Loading...']);
+    const [planets, setPlanets] = useState(['Loading...'])
 
     let {heroId = defaultHero} = useParams();
     const {changeHero} = useContext(SWContext);
@@ -16,7 +17,7 @@ const Contact = () => {
             heroId = defaultHero;
         }
         changeHero(heroId);
-    }, []);
+    }, [heroId]);
 
     async function fetchPlanets(url: string) {
         const response = await fetch(url);
@@ -37,7 +38,9 @@ const Contact = () => {
             fetchPlanets(`${base_url}/v1/planets`);
         }
     }, [])
-
+    if (!characters[heroId]) {
+        return <ErrorPage />;
+    }
     return (
         <form className={'containerContact'} onSubmit={e => e.preventDefault()}>
             <label>First Name
@@ -60,6 +63,6 @@ const Contact = () => {
             <button type="submit">Submit</button>
         </form>
     );
-};
+}
 
 export default Contact;

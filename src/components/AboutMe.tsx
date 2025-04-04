@@ -3,17 +3,19 @@ import {useContext, useEffect, useState} from "react";
 import {HeroInfo} from "../utils/types";
 import {useParams} from "react-router";
 import {SWContext} from "../utils/context.ts";
+import ErrorPage from "./ErrorPage.tsx";
 
 const AboutMe = () => {
     const [hero, setHero] = useState<HeroInfo>();
     let {heroId = defaultHero} = useParams();
-    const {changeHero} = useContext(SWContext);
+    const {changeHero} = useContext(SWContext)
 
     useEffect(() => {
         if(!characters[heroId]){
-           heroId = defaultHero;
+            heroId = defaultHero;
         }
         changeHero(heroId);
+
         const hero = JSON.parse(localStorage.getItem(heroId)!);
         if (hero && ((Date.now() - hero.timestamp) < period_month)) {
             setHero(hero.payload);
@@ -40,6 +42,9 @@ const AboutMe = () => {
         }
 
     }, [])
+    if (!characters[heroId]) {
+        return <ErrorPage />;
+    }
 
     return (
         <>

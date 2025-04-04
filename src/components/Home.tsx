@@ -5,6 +5,7 @@ import {characters, defaultHero} from "../utils/constants.ts";
 import {useParams} from "react-router";
 import {useContext, useEffect} from "react";
 import {SWContext} from "../utils/context.ts";
+import ErrorPage from "./ErrorPage.tsx";
 
 const Home = () => {
 
@@ -17,6 +18,10 @@ const Home = () => {
         }
         changeHero(heroId);
     }, [heroId]);
+
+    if (!characters[heroId]) {
+        return <ErrorPage />;
+    }
 
     return (
         <main className="clearfix">
