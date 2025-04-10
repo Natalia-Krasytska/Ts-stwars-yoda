@@ -1,20 +1,9 @@
 import {characters, defaultHero, starWarsInfo} from "../utils/constants.ts";
-import {useParams} from "react-router";
-import {useContext, useEffect} from "react";
-import {SWContext} from "../utils/context.ts";
+import useHero   from "../utils/useHero.ts";
 import ErrorPage from "./ErrorPage.tsx";
 
 const StarWars = () => {
-
-    let {heroId = defaultHero} = useParams();
-    const {changeHero} = useContext(SWContext);
-
-    useEffect(() => {
-        if (!characters[heroId]) {
-            heroId = defaultHero;
-        }
-        changeHero(heroId);
-    }, []);
+    const heroId = useHero(defaultHero);
 
     if (!characters[heroId]) {
         return <ErrorPage />;
@@ -26,5 +15,4 @@ const StarWars = () => {
         </div>
     );
 };
-
 export default StarWars;
