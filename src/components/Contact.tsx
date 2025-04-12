@@ -1,68 +1,60 @@
+import {useEffect, useState} from 'react';
+
 import '../Contact.css'
-import { useEffect, useState} from "react";
-import {base_url, characters, defaultHero, period_month} from "../utils/constants.ts";
+import {base_url} from "../utils/constants.ts";
 import {Planet} from "../utils/types";
 import ErrorPage from "./ErrorPage.tsx";
-import useHero from "../utils/useHero.ts";
+import useHeroId from "../hooks/useHero.ts";
 
+const Contact = () => {
+    const [planets, setPlanets] = useState(['Loading...'])
 
+    const {isValidHero} = useHeroId();
 
-    const Contact = () => {
-        const [planets, setPlanets] = useState(['Loading...']);
-        const heroId = useHero(defaultHero);
+    async function fetchPlanets() {
+        const response = await fetch(`${base_url}/v1/planets`);
 
-        async function fetchPlanets(url: string) {
-            const response = await fetch(url);
-            const data: Planet[] = await response.json();
-            const planets = data.map(item => item.name);
-            setPlanets(planets);
-            localStorage.setItem('planets', JSON.stringify({
-                payload: planets,
-                timestamp: Date.now()
-            }));
-        }
-
-        useEffect(() => {
-            const planets = JSON.parse(localStorage.getItem('planets')!);
-            if (planets && ((Date.now() - planets.timestamp) < period_month)) {
-                setPlanets(planets.payload);
-            } else {
-                fetchPlanets(`${base_url}/v1/planets`);
-            }
-        }, [])
-        if (!characters[heroId]) {
-            return <ErrorPage/>;
-        }
-
-        return (
-            <form className={'containerContact'} onSubmit={e => e.preventDefault()}>
-                {}
-            </form>
-        );
+        const data: Planet[] = await response.json();
+        const planets = data.map(item => item.name);
+        setPlanets(planets);
+        localStorage.setItem('planet', JSON.stringify(planets));
     }
 
-    return (
+    useEffect(() => {
+        const planet = localStorage.getItem('planet');
+        const now = Date.now();
+        const expirationDate = 30 * 24 * 60 * 60 * 1000;
+        if(planet){
+            const {timestamp, data} = JSON.parse(planet);
+            if (now - timestamp < expirationDate) {
+                setPlanets(data);
+                return;
+            }
+        }
+        fetchPlanets();
+        return () => console.log('Component Contact was unmounted');
+    },[])
+
+
+    return isValidHero ? (
         <form className={'containerContact'} onSubmit={e => e.preventDefault()}>
             <label>First Name
                 <input type="text" name="firstname" placeholder="Your name.."/>
             </label>
-
             <label>Last Name
                 <input type="text" name="lastname" placeholder="Your last name.."/>
             </label>
-
             <label>Planet
                 <select name="planet">
                     {planets.map(item => <option key={item} value={item}>{item}</option>)}
                 </select>
             </label>
-
             <label>Subject
-                <textarea name="subject" placeholder="Write something.." style={{height: '200px'}}></textarea>
+                <textarea name="subject" placeholder="Write something.." style={{height:'200px'}}></textarea>
             </label>
             <button type="submit">Submit</button>
         </form>
-    );
-
+    ): <ErrorPage/>;
+};
 
 export default Contact;

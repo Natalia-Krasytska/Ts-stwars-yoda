@@ -1,21 +1,19 @@
-import {characters, defaultHero, period_month} from "../utils/constants.ts";
-import {useContext, useEffect, useState} from "react";
+import {characters, period_month} from "../utils/constants.ts";
+import {useEffect, useState} from "react";
 import {HeroInfo} from "../utils/types";
-import {useParams} from "react-router";
-import {SWContext} from "../utils/context.ts";
+import useHeroId from "../hooks/useHero.ts";
 import ErrorPage from "./ErrorPage.tsx";
 
 const AboutMe = () => {
     const [hero, setHero] = useState<HeroInfo>();
-    let {heroId = defaultHero} = useParams();
-    const {changeHero} = useContext(SWContext)
+    const {heroId, isValidHero, changeHero} = useHeroId();
+
 
     useEffect(() => {
-        if(!characters[heroId]){
-            heroId = defaultHero;
+        if(!isValidHero){
+            return;
         }
         changeHero(heroId);
-
         const hero = JSON.parse(localStorage.getItem(heroId)!);
         if (hero && ((Date.now() - hero.timestamp) < period_month)) {
             setHero(hero.payload);
@@ -41,22 +39,20 @@ const AboutMe = () => {
                 })
         }
 
-    }, [])
-    if (!characters[heroId]) {
-        return <ErrorPage />;
-    }
+    }, []);
 
-    return (
+    return isValidHero ? (
         <>
             {(!!hero) &&
                 <div className='fs-2 lh-lg text-justify ms-5'>
                     {Object.keys(hero).map(key => <p key={key}>
                         <span className={'display-3'}>{key.replace('_', ' ')}</span>: {hero[key as keyof HeroInfo]}
                     </p>)}
+
                 </div>
             }
         </>
-    );
+    ): <ErrorPage/>;
 };
 
 export default AboutMe;

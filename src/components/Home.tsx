@@ -1,23 +1,20 @@
 import Hero from "./Hero.tsx";
 import DreamTeam from "./DreamTeam.tsx";
 import FarGalaxy from "./FarGalaxy.tsx";
-import {characters, defaultHero} from "../utils/constants.ts";
 import ErrorPage from "./ErrorPage.tsx";
-import useHero from "../useHero.ts";
+import useHeroId from "../hooks/useHero.ts";
 
-const home = () => {
-    const heroId = useHero(defaultHero);
+const Home = () => {
+    const {isValidHero} = useHeroId();
 
-    if (!characters[heroId]) {
-        return <ErrorPage />;
-    }
 
-    return (
+    return isValidHero ? (
         <main className="clearfix">
-            <Hero />
-            <DreamTeam />
-            <FarGalaxy />
+            <Hero/>
+            <DreamTeam/>
+            <FarGalaxy/>
         </main>
-    );
+    ) : <ErrorPage/>;
 };
 
+export default Home;

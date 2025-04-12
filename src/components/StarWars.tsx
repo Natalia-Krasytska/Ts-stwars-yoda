@@ -1,18 +1,16 @@
-import {characters, defaultHero, starWarsInfo} from "../utils/constants.ts";
-import useHero   from "../utils/useHero.ts";
+import {starWarsInfo} from "../utils/constants.ts";
 import ErrorPage from "./ErrorPage.tsx";
+import useHeroId from "../hooks/useHero.ts";
 
 const StarWars = () => {
-    const heroId = useHero(defaultHero);
 
-    if (!characters[heroId]) {
-        return <ErrorPage />;
-    }
+    const {isValidHero} = useHeroId();
 
-    return (
-        <div className="farGalaxy">
+    return isValidHero ?(
+        <div className='farGalaxy'>
             {starWarsInfo}
         </div>
-    );
+    ): <ErrorPage/>;
 };
+
 export default StarWars;
